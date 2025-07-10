@@ -1,0 +1,136 @@
+/* JSON格式化样式 */
+.json-view {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  background-color: #282c34;
+  border-radius: 6px;
+  padding: 15px;
+  margin: 10px 0;
+  overflow-x: auto;
+  color: #abb2bf;
+}
+
+/* 基本类型样式 */
+.json-string {
+  color: #98c379; /* 绿色 */
+}
+
+.json-number {
+  color: #d19a66; /* 橙色 */
+}
+
+.json-boolean {
+  color: #56b6c2; /* 青色 */
+}
+
+.json-null {
+  color: #e06c75; /* 红色 */
+}
+
+/* 结构样式 */
+.json-key {
+  color: #e06c75; /* 红色 */
+  font-weight: bold;
+}
+
+.json-bracket {
+  color: #abb2bf; /* 灰白色 */
+  font-weight: bold;
+}
+
+.json-colon {
+  color: #abb2bf; /* 灰白色 */
+}
+
+.json-comma {
+  color: #abb2bf; /* 灰白色 */
+}
+
+/* 对象和数组容器 */
+.json-object, .json-array {
+  margin-left: 0;
+}
+
+.json-object-properties, .json-array-items {
+  margin-left: 20px;
+}
+
+.json-property, .json-array-item {
+  padding: 2px 0;
+}
+
+/* 折叠效果 */
+.json-collapsed {
+  cursor: pointer;
+}
+
+.json-preview {
+  color: #abb2bf;
+  opacity: 0.7;
+  font-style: italic;
+  margin-left: 5px;
+}
+
+/* 折叠按钮 */
+.json-toggle {
+  cursor: pointer;
+  margin-right: 5px;
+  color: #61afef; /* 蓝色 */
+  user-select: none;
+}
+
+.json-toggle:hover {
+  text-decoration: underline;
+}
+
+/* 可交互增强 */
+.json-interactive .json-key {
+  cursor: pointer;
+}
+
+.json-interactive .json-key:hover {
+  text-decoration: underline;
+}
+
+/* 复制按钮 */
+.json-copy-button {
+  background-color: #4b5263;
+  color: #abb2bf;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 5px;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.json-copy-button:hover {
+  opacity: 1;
+  background-color: #5c6370;
+}
+
+/* 错误状态 */
+.json-error {
+  background-color: #2d232e;
+  border-left: 4px solid #e06c75;
+}
+
+.json-error pre {
+  color: #e06c75;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .json-view {
+    font-size: 12px;
+    padding: 10px;
+  }
+  
+  .json-object-properties, .json-array-items {
+    margin-left: 12px;
+  }
+}
