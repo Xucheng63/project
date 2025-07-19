@@ -30,10 +30,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 存储用户的 API Keys（生产环境应使用数据库）
+// Store the API keys of users (in the production environment, a database should be used)
 const userApiKeys = new Map();
 
-// 中间件：从 token 中提取用户名
+// Middleware: Extracting the username from the token
 const extractUsername = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   
@@ -59,8 +59,6 @@ app.post('/upload', upload.single('image'), (req, res) => {
 
 app.use('/uploads', express.static('uploads'));
 
-// API Key 管理路由
-// 验证 API Key 是否有效
 app.post('/api/validate-api-key', async (req, res) => {
   const { apiKey } = req.body;
 
@@ -69,7 +67,7 @@ app.post('/api/validate-api-key', async (req, res) => {
   }
 
   try {
-    // 调用 OpenAI API 验证 key 是否有效
+
     const response = await axios.get('https://api.openai.com/v1/models', {
       headers: {
         'Authorization': `Bearer ${apiKey}`
@@ -88,7 +86,7 @@ app.post('/api/validate-api-key', async (req, res) => {
   }
 });
 
-// 设置用户的 API Key
+
 app.post('/api/set-api-key', extractUsername, async (req, res) => {
   const { apiKey } = req.body;
   const username = req.username || req.body.username;
@@ -98,10 +96,10 @@ app.post('/api/set-api-key', extractUsername, async (req, res) => {
   }
 
   try {
-    // 在生产环境中，应该加密存储 API Key
+
     userApiKeys.set(username, apiKey);
     
-    // 更新 Python 后端的 API Key
+
     const pythonResponse = await axios.post('http://localhost:8001/update-api-key', {
       username,
       apiKey
@@ -118,7 +116,7 @@ app.post('/api/set-api-key', extractUsername, async (req, res) => {
   }
 });
 
-// 获取用户的 API Key（内部使用）
+
 app.get('/api/get-api-key/:username', (req, res) => {
   const { username } = req.params;
   const apiKey = userApiKeys.get(username);
@@ -130,7 +128,7 @@ app.get('/api/get-api-key/:username', (req, res) => {
   }
 });
 
-// 创建新的聊天会话
+
 app.post('/api/sessions', extractUsername, async (req, res) => {
   const { title, firstMessage } = req.body;
   const username = req.username;
@@ -158,7 +156,7 @@ app.post('/api/sessions', extractUsername, async (req, res) => {
   }
 });
 
-// 更新聊天会话
+
 app.put('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   const { sessionId } = req.params;
   const { messages, taskInfo, title } = req.body;
@@ -205,7 +203,7 @@ app.put('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   }
 });
 
-// 添加单条消息到会话
+
 app.post('/api/sessions/:sessionId/messages', extractUsername, async (req, res) => {
   const { sessionId } = req.params;
   const { message } = req.body;
@@ -234,7 +232,7 @@ app.post('/api/sessions/:sessionId/messages', extractUsername, async (req, res) 
   }
 });
 
-// 获取用户的所有会话
+
 app.get('/api/sessions', extractUsername, async (req, res) => {
   const username = req.username;
   const { limit = 20, skip = 0 } = req.query;
@@ -253,7 +251,7 @@ app.get('/api/sessions', extractUsername, async (req, res) => {
   }
 });
 
-// 获取单个会话详情
+
 app.get('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   const { sessionId } = req.params;
   const username = req.username;
@@ -275,7 +273,7 @@ app.get('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   }
 });
 
-// 删除会话
+
 app.delete('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   const { sessionId } = req.params;
   const username = req.username;
@@ -297,7 +295,7 @@ app.delete('/api/sessions/:sessionId', extractUsername, async (req, res) => {
   }
 });
 
-// 搜索会话
+
 app.get('/api/sessions/search', extractUsername, async (req, res) => {
   const { query } = req.query;
   const username = req.username;
@@ -334,7 +332,7 @@ app.get('/stream-process-task', async (req, res) => {
     return res.status(400).json({ error: 'Main task is required' });
   }
 
-  // 从 token 中提取用户名
+
   let username = null;
   if (token) {
     try {
@@ -416,12 +414,9 @@ app.get('/stream-process-task', async (req, res) => {
   }
 });
 
-// 注意：这个路由已经被移除，因为我们现在使用新的会话管理系统
-// 原来的 "/" 路由可以删除或者改造成兼容旧版本的形式
 
 app.use('/api/auth', router);
 
-// 注意：这个路由也可以改造成使用新的会话系统
 app.get("/sessions", async (req, res) => {
   const { userId } = req.query;
 

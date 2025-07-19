@@ -22,10 +22,8 @@ from collections import defaultdict
 app = Flask(__name__)
 CORS(app)
 
-# 用户 API Keys 存储（生产环境应使用数据库并加密存储）
 user_api_keys = defaultdict(str)
 
-# 默认 API Key（从环境变量获取，作为后备选项）
 DEFAULT_API_KEY = os.getenv('OPENAI_API_KEY', '')
 
 # Token counting function, used to estimate token usage before API calls
@@ -60,16 +58,11 @@ def get_api_key_for_user(username=None, session_id=None):
     if username and username in user_api_keys:
         return user_api_keys[username]
     
-    # 如果 session_id 关联了用户，也可以通过 session 获取
-    # 这里需要实现 session 到用户的映射逻辑
-    
-    # 返回默认 API Key
     return DEFAULT_API_KEY
 
 def ask_gpt4o(sys_prompt, user_prompt, history='', max_retries=3, backoff_factor=2, username=None):
     """
     Send a request to the GPT-4o model with retry logic to handle rate limits
-    使用用户特定的 API Key
     """
     # Estimate token count before making the request
     system_tokens = count_tokens(sys_prompt)
@@ -104,7 +97,7 @@ def ask_gpt4o(sys_prompt, user_prompt, history='', max_retries=3, backoff_factor
             if history:
                 history = truncate_text(history, max_tokens // 3)
     
-    # 获取用户的 API Key
+
     api_key = get_api_key_for_user(username)
     
     if not api_key:
@@ -469,7 +462,6 @@ Return ONLY a JSON with this format:
 
 # In-memory storage for session subtask data
 session_subtasks = {}
-# 添加 session 到用户的映射
 session_to_user = {}
 
 def save_subtasks_to_session(session_id, subtasks, username=None):
@@ -512,7 +504,6 @@ def get_subtasks_from_session(session_id):
     return subtasks
 
 def get_username_from_session(session_id):
-    """根据 session_id 获取用户名"""
     return session_to_user.get(session_id)
 
 def regenerate_dialogue_content(dialogues_so_far, next_role, next_step, history='', username=None):
@@ -1390,7 +1381,6 @@ def regenerate_dialogues():
     updated_content = data.get('updated_content')
     current_dialogues = data.get('current_dialogues')  # Get current dialogues from frontend
     
-    # 从 session 获取用户名
     username = get_username_from_session(session_id)
     
     print(f"Regenerate dialogues request details:")
@@ -1615,7 +1605,7 @@ def process_task():
     edit_content = data.get('edit_content')  # Get edit content
     task_index = data.get('task_index')  # Task index
     edited_subtasks = data.get('edited_subtasks')  # Get edited subtasks
-    username = data.get('username')  # 获取用户名
+    username = data.get('username')  
     
     # Enhanced logging
     print(f"[API] /process-task received request: ")
@@ -1679,7 +1669,6 @@ def process_task():
                     return jsonify({'error': 'Session not found or expired'}), 404
                 print(f"Retrieved {len(subtasks)} subtasks from session {session_id}")
                 
-                # 如果没有用户名，尝试从 session 获取
                 if not username:
                     username = get_username_from_session(session_id)
             
@@ -1788,7 +1777,7 @@ def stream_response(data):
     continue_from = data.get('continue_from', 0)
     retry_task = data.get('retry_task')
     session_id = data.get('session_id')
-    username = data.get('username')  # 获取用户名
+    username = data.get('username')  
     
     try:
         # Redirect stdout to capture output
@@ -1832,7 +1821,6 @@ def stream_response(data):
                 return
             print(f"Retrieved {len(subtasks)} subtasks from session {session_id}")
             
-            # 如果没有用户名，尝试从 session 获取
             if not username:
                 username = get_username_from_session(session_id)
         
@@ -1999,7 +1987,6 @@ def update_ai_dialogue():
         
         subtasks[task_index]['user_edited_dialogues'][str(dialogue_index)] = updated_content
         
-        # 获取用户名
         username = get_username_from_session(session_id)
         
         # Save the updated subtasks
@@ -2089,10 +2076,10 @@ def save_file():
             'file_path': file_path
         }), 500
 
-# 添加更新 API Key 的路由
+
 @app.route('/update-api-key', methods=['POST'])
 def update_api_key():
-    """更新用户的 API Key"""
+
     data = request.json
     username = data.get('username')
     api_key = data.get('apiKey')
@@ -2100,7 +2087,7 @@ def update_api_key():
     if not username or not api_key:
         return jsonify({'error': 'Username and API key are required'}), 400
     
-    # 存储用户的 API Key
+
     user_api_keys[username] = api_key
     
     print(f"Updated API key for user: {username}")
