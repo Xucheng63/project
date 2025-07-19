@@ -11,6 +11,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); 
   const navigate = useNavigate();
 
   const handleSendCode = async () => {
@@ -20,7 +21,13 @@ const Register = () => {
     }
     try {
       await axios.post('http://localhost:8000/api/auth/send-verification-code', { email });
-      alert('Verification code has been sent to your email');
+
+      setSuccessMessage('Verification code has been sent to your email');
+      setError(''); 
+
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 5000);
     } catch (error) {
       console.error('Error sending verification code:', error);
       if (error.response && error.response.data && error.response.data.errors) {
@@ -28,6 +35,10 @@ const Register = () => {
       } else {
         setError('Failed to send verification code');
       }
+      setSuccessMessage(''); 
+      setTimeout(() => {
+        setError(''); 
+      }, 5000);
     }
   };
 
@@ -38,30 +49,40 @@ const Register = () => {
     // Verify whether the password and the confirmation password are the same
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setTimeout(() => setError(''), 5000); 
       return;
     }
 
     if (!username) {
       setError('Username is required');
+      setTimeout(() => setError(''), 5000); 
       return;
     }
     if (!password || password.length < 6) {
       setError('Password must be at least 6 characters long');
+      setTimeout(() => setError(''), 5000); 
       return;
     }
     if (!email) {
       setError('Email is required');
+      setTimeout(() => setError(''), 5000); 
       return;
     }
     if (!verificationCode) {
       setError('Verification code is required');
+      setTimeout(() => setError(''), 5000); 
       return;
     }
 
     try {
       await axios.post('http://localhost:8000/api/auth/register', { username, password, email, verificationCode });
-      alert('Registration successful');
-      navigate('/login');
+
+      setSuccessMessage('Registration successful! Redirecting to login...');
+      setError('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (error) {
       console.error('Error registering:', error);
       if (error.response && error.response.data && error.response.data.errors) {
@@ -69,6 +90,7 @@ const Register = () => {
       } else {
         setError('Registration failed');
       }
+      setTimeout(() => setError(''), 5000); 
     }
   };
 
@@ -76,7 +98,8 @@ const Register = () => {
     <div className="register-container">
       <div className="register-card">
         <h2 className="register-title">Register</h2>
-        {error && <p className="error-message">{error}</p>}
+        {error && <p className="error-message" style={{color: 'red'}}>{error}</p>}
+        {successMessage && <p className="success-message" style={{color: 'white'}}>{successMessage}</p>}
         <form onSubmit={handleRegister} className="register-form">
           <div className="form-group">
             <label htmlFor="username" className="form-label">Username:</label>
