@@ -10,7 +10,7 @@ const ChatSessionSchema = new mongoose.Schema({
   userId: { 
     type: String, 
     required: true,
-    index: true  // 添加索引以提高查询性能
+    index: true  
   },
   title: {
     type: String,
@@ -23,7 +23,7 @@ const ChatSessionSchema = new mongoose.Schema({
       required: true 
     },
     content: { 
-      type: mongoose.Schema.Types.Mixed,  // 支持字符串或数组
+      type: mongoose.Schema.Types.Mixed,  
       required: true 
     },
     isSubtask: {
@@ -31,7 +31,7 @@ const ChatSessionSchema = new mongoose.Schema({
       default: false
     },
     subtask: {
-      type: mongoose.Schema.Types.Mixed  // 存储子任务详情
+      type: mongoose.Schema.Types.Mixed  
     },
     task_index: Number,
     createdAt: { 
@@ -39,7 +39,7 @@ const ChatSessionSchema = new mongoose.Schema({
       default: Date.now 
     }
   }],
-  // 存储任务相关信息
+
   taskInfo: {
     main_task: String,
     session_id: String,
@@ -68,7 +68,7 @@ ChatSessionSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   this.lastActivity = new Date();
   
-  // 自动生成标题（使用第一条用户消息）
+
   if (this.title === 'New Chat' && this.messages.length > 0) {
     const firstUserMessage = this.messages.find(msg => msg.role === 'user');
     if (firstUserMessage) {
