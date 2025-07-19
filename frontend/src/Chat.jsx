@@ -27,7 +27,7 @@ import {
 // Import styles
 import './Chat.css';
 
-// 创建一个通用的 axios 实例
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
@@ -35,7 +35,7 @@ const apiClient = axios.create({
   }
 });
 
-// 添加请求拦截器以自动添加 token
+
 apiClient.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
@@ -175,7 +175,7 @@ const Chat = () => {
     }
   };
 
-  // 创建或获取当前会话
+
 const ensureSession = async (firstMessage = null) => {
   // Always check current sessionId first
   if (sessionId) {
@@ -211,7 +211,7 @@ const ensureSession = async (firstMessage = null) => {
   }
 };
 
-  // 保存消息到数据库
+
   const saveMessageToSession = async (newMessage, currentSessionId) => {
     if (!currentSessionId) return;
     
@@ -229,7 +229,7 @@ const ensureSession = async (firstMessage = null) => {
 useEffect(() => {
   console.log("Current sessionId:", sessionId);
 }, [sessionId]);
-  // 保存完整会话状态
+
 const saveSessionState = async () => {
   if (!sessionId) {
     console.warn("No sessionId available for saving");
@@ -325,18 +325,18 @@ const saveSessionState = async () => {
   }
 };
 
-  // 添加定期保存功能
+
   useEffect(() => {
     if (!sessionId || chats.length === 0) return;
     
     const saveTimer = setTimeout(() => {
       saveSessionState();
-    }, 5000); // 5秒后自动保存
+    }, 5000); 
     
     return () => clearTimeout(saveTimer);
   }, [chats, allSubtasks, currentTask]);
 
-  // Get history sessions - 修改后的版本
+  // Get history sessions 
   const fetchHistorySessions = async (autoOpen = true) => {
     setIsLoadingHistory(true);
     try {
@@ -358,17 +358,17 @@ const saveSessionState = async () => {
     }
   };
 
-  // 删除历史记录
+  // Delete history records
   const handleDeleteHistory = async (sessionIdToDelete) => {
     try {
       await apiClient.delete(`/api/sessions/${sessionIdToDelete}`);
       
-      // 更新本地状态
+
       setHistorySessions(prev => 
         prev.filter(session => session._id !== sessionIdToDelete)
       );
       
-      // 如果删除的是当前会话，清空界面
+      // If the current session is deleted, the interface will be cleared.
       if (sessionIdToDelete === sessionId) {
         handleNewChat();
       }
@@ -586,13 +586,13 @@ const saveSessionState = async () => {
             }
           }
         ],
-        isHistorical: false  // 标记为非历史消息
+        isHistorical: false  
       };
     } else {
       newChat = {
         role: 'user',
         content: message,
-        isHistorical: false  // 标记为非历史消息
+        isHistorical: false  
       };
     }
   
@@ -623,7 +623,7 @@ const saveSessionState = async () => {
             const assistantResponse = { 
               role: 'assistant', 
               content: response.data.output.content,
-              isHistorical: false  // 标记为非历史消息
+              isHistorical: false  
             };
             setChats((prevChats) => [...prevChats, assistantResponse]);
             setSessionId(response.data.sessionId);
@@ -649,7 +649,7 @@ const saveSessionState = async () => {
           const assistantResponse = { 
             role: 'assistant', 
             content: response.data.output.content,
-            isHistorical: false  // 标记为非历史消息
+            isHistorical: false  
           };
           setChats((prevChats) => [...prevChats, assistantResponse]);
           setSessionId(response.data.sessionId);
@@ -688,7 +688,7 @@ const saveSessionState = async () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    localStorage.removeItem('hasApiKey'); // 清除 API Key 状态
+    localStorage.removeItem('hasApiKey'); 
     navigate('/login');
   };
 
@@ -722,23 +722,23 @@ const saveSessionState = async () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Switch to history chat - 修改后的版本
+  // Switch to history chat 
   const handleHistoryChat = async (session) => {
     try {
-      // 获取完整的会话数据
+
       const response = await apiClient.get(`/api/sessions/${session._id}`);
       const fullSession = response.data;
       
-      // 恢复聊天记录，并标记所有现有消息为历史消息
+
       const historicalChats = (fullSession.messages || []).map(msg => ({
         ...msg,
-        isHistorical: true  // 添加历史标记
+        isHistorical: true  
       }));
       
       setChats(historicalChats);
       setSessionId(fullSession._id);
       
-      // 恢复任务信息
+
       if (fullSession.taskInfo) {
         setCurrentTask({
           main_task: fullSession.taskInfo.main_task || '',
@@ -827,7 +827,7 @@ const saveSessionState = async () => {
     }
   };
 
-  // Display task result - 修改后支持保存到数据库
+  // Display task result 
   const displayTaskResult = async (parsedData) => {
     // Format content
     let formattedContent = '';
@@ -905,7 +905,7 @@ const saveSessionState = async () => {
       total_tasks: parsedData.total_tasks || 0, // Ensure there's always a value
       conversation_id: conversation_id, // Add conversation identifier
       has_ai_dialogues: parsedData.ai_dialogues && parsedData.ai_dialogues.length > 0, // Add dialogue identifier
-      isHistorical: false  // 标记为非历史消息
+      isHistorical: false  
     };
     
     // Add new message instead of replacing existing message
@@ -915,7 +915,7 @@ const saveSessionState = async () => {
       return newChats;
     });
     
-    // 保存消息到数据库
+    
     if (sessionId) {
       await saveMessageToSession(newMessage, sessionId);
     }
@@ -1064,7 +1064,7 @@ const saveSessionState = async () => {
             role: 'system', 
             content: `File content has been updated. New content: ${subtask.file_output}`,
             isFileUpdate: true,
-            isHistorical: false  // 标记为非历史消息
+            isHistorical: false  
           }
         ]);
       }
@@ -1089,7 +1089,7 @@ const saveSessionState = async () => {
               waiting_user_action: waitingUserAction,
               is_final_task: isLastTask,
               total_tasks: totalTasks, // Ensure correct total_tasks setting
-              isHistorical: false  // 确保新生成的消息不是历史消息
+              isHistorical: false  
             };
             
             console.log("Replaced message, waiting_user_action:", waitingUserAction);
@@ -1158,7 +1158,7 @@ const saveSessionState = async () => {
           role: 'system', 
           content: 'Processing dialogue modifications and updating task execution results...',
           isProcessing: true,
-          isHistorical: false  // 标记为非历史消息
+          isHistorical: false  
         }
       ]);
       
@@ -1215,7 +1215,7 @@ const saveSessionState = async () => {
                 role: 'system', 
                 content: `File content has been updated. New content: ${updatedSubtask.file_output}`,
                 isFileUpdate: true,
-                isHistorical: false  // 标记为非历史消息
+                isHistorical: false  
               }
             ]);
           }
@@ -1359,7 +1359,7 @@ const saveSessionState = async () => {
               session_id: parsedData.session_id || target_session_id,
               total_tasks: parsedData.total_tasks || targetMessage.total_tasks,
               conversation_id: conversation_id,
-              isHistorical: false  // 确保编辑后的消息不是历史消息
+              isHistorical: false  
             };
             return newChats;
           });
@@ -1440,7 +1440,7 @@ const saveSessionState = async () => {
     }
   };
 
-// Handle send task - 修改后支持保存到数据库
+// Handle send task 
 const handleSendTask = async (e) => {
   e.preventDefault();
 
@@ -1465,11 +1465,11 @@ const handleSendTask = async (e) => {
     const userMessage = { 
       role: 'user', 
       content: message,
-      isHistorical: false  // 标记为非历史消息
+      isHistorical: false  
     };
     setChats((prevChats) => [...prevChats, userMessage]);
     
-    // 保存用户消息到数据库 - use existing session
+
     await saveMessageToSession(userMessage, currentSessionId);
     
     // Add a waiting animation message showing system is processing task
@@ -1479,7 +1479,7 @@ const handleSendTask = async (e) => {
       isProcessing: true,
       isWaitingSubtasks: true,  // Add identifier to distinguish ordinary loading from task splitting loading
       conversation_id: Date.now(), // Add unique conversation identifier
-      isHistorical: false  // 标记为非历史消息
+      isHistorical: false  
     };
     setChats((prevChats) => [...prevChats, waitingMessage]);
     
@@ -1488,7 +1488,7 @@ const handleSendTask = async (e) => {
       main_task: message,
       task_index: -1,
       waiting_user_action: false,
-      session_id: currentSessionId  // 使用当前会话ID
+      session_id: currentSessionId  
     };
     
     // Reset subtask-related status - this is a key modification
@@ -1503,16 +1503,15 @@ const handleSendTask = async (e) => {
     console.log("Sending new task:", newTask);
     console.log("Using session ID:", currentSessionId);
 
-    // 获取 token
     const token = localStorage.getItem('token');
     
-    // Use EventSource to call streaming interface，添加 token 和 session_id 参数
+
     const eventSource = new EventSource(
       `${import.meta.env.VITE_API_URL}/stream-process-task?main_task=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}&session_id=${encodeURIComponent(currentSessionId)}`
     );
 
-    // 将 eventSource.onmessage 改为异步函数
-eventSource.onmessage = async (event) => {  // 添加 async
+    // 将 eventSource.onmessage 
+eventSource.onmessage = async (event) => {  
   try {
     // First check if it's an end signal
     if (event.data === 'END') {
@@ -1526,7 +1525,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
     // Check and process possible "data: " prefix
     let jsonData = event.data;
     if (jsonData.startsWith('data: ')) {
-      jsonData = jsonData.substring(6); // Remove prefix "data: "
+      jsonData = jsonData.substring(6); 
     }
     
     // Parse data
@@ -1591,7 +1590,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           content: `The task has been split into ${parsedData.all_subtasks.length} subtasks. Please review the task plan and confirm execution.`,
           isSystemMessage: true,
           conversation_id: currentConversationId,
-          isHistorical: false  // 标记为非历史消息
+          isHistorical: false  
         };
         
         setChats((prevChats) => [
@@ -1599,7 +1598,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           reviewMessage
         ]);
         
-        // 保存审查消息到数据库
+
         if (currentSessionId) {
           await saveMessageToSession(reviewMessage, currentSessionId);
         }
@@ -1649,7 +1648,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
         
         // Ensure parsedData has the correct session_id
         parsedData.session_id = currentSessionId || parsedData.session_id;
-        await displayTaskResult(parsedData);  // 这里也需要 await
+        await displayTaskResult(parsedData);  
         
         // If this is the last task, close the event source
         if (parsedData.is_final_task || 
@@ -1710,7 +1709,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
   }
 };
 
-  // Add subtask review confirmation function - 修改后支持保存到数据库
+  // Add subtask review confirmation function 
   const handleConfirmSubtasks = async () => {
     setIsTyping(true);
     setIsConfirming(true); // Set confirmation button loading status
@@ -1738,11 +1737,11 @@ eventSource.onmessage = async (event) => {  // 添加 async
       const confirmMessage = { 
         role: 'system', 
         content: 'Task plan confirmed, starting execution of first subtask...',
-        isHistorical: false  // 标记为非历史消息
+        isHistorical: false  
       };
       setChats((prevChats) => [...prevChats, confirmMessage]);
       
-      // 保存确认消息到数据库
+      
       if (sessionId) {
         await saveMessageToSession(confirmMessage, sessionId);
       }
@@ -1809,7 +1808,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
               waiting_user_action: firstTaskData.waiting_user_action || false,
               session_id: firstTaskData.session_id || currentTask.session_id,
               total_tasks: pendingSubtasks.length,
-              isHistorical: false  // 标记为非历史消息
+              isHistorical: false  
             };
             
             setChats(prevChats => [
@@ -1819,7 +1818,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
               taskResultMessage
             ]);
             
-            // 保存任务结果到数据库
+           
             if (sessionId) {
               await saveMessageToSession(taskResultMessage, sessionId);
             }
@@ -1834,7 +1833,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           const noResultMessage = { 
             role: 'system', 
             content: 'Task plan confirmed, but no first subtask execution result received. Please manually click the \'Continue Next Step\' button to execute the first subtask.',
-            isHistorical: false  // 标记为非历史消息
+            isHistorical: false  
           };
           
           setChats(prevChats => [
@@ -1844,7 +1843,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
             noResultMessage
           ]);
           
-          // 保存消息到数据库
+          
           if (sessionId) {
             await saveMessageToSession(noResultMessage, sessionId);
           }
@@ -1855,7 +1854,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
         const errorMessage = { 
           role: 'system', 
           content: 'Failed to execute first subtask. Please manually click the \'Continue Next Step\' button to retry.',
-          isHistorical: false  // 标记为非历史消息
+          isHistorical: false  
         };
         
         setChats(prevChats => [
@@ -1865,7 +1864,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           errorMessage
         ]);
         
-        // 保存错误消息到数据库
+        
         if (sessionId) {
           await saveMessageToSession(errorMessage, sessionId);
         }
@@ -1896,11 +1895,11 @@ eventSource.onmessage = async (event) => {  // 添加 async
     const cancelMessage = { 
       role: 'system', 
       content: 'Task execution has been cancelled',
-      isHistorical: false  // 标记为非历史消息
+      isHistorical: false 
     };
     setChats((prevChats) => [...prevChats, cancelMessage]);
     
-    // 保存取消消息到数据库
+   
     if (sessionId) {
       await saveMessageToSession(cancelMessage, sessionId);
     }
@@ -1940,7 +1939,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
         content: 'Processing next subtask', 
         isProcessing: true,
         conversation_id: conversation_id, // Add conversation identifier
-        isHistorical: false  // 标记为非历史消息
+        isHistorical: false  
       };
       setChats(prevChats => [...prevChats, loadingMessage]);
       
@@ -2045,7 +2044,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           content: `Unable to execute next task: ${axiosError.response?.data?.error || axiosError.message}`, 
           isError: true,
           conversation_id: conversation_id,  // Keep conversation identifier
-          isHistorical: false  // 标记为非历史消息
+          isHistorical: false  
         };
         
         setChats(prevChats => [
@@ -2053,7 +2052,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
           errorMessage
         ]);
         
-        // 保存错误消息到数据库
+        
         if (sessionId) {
           await saveMessageToSession(errorMessage, sessionId);
         }
@@ -2193,7 +2192,7 @@ eventSource.onmessage = async (event) => {  // 添加 async
               total_tasks: parsedData.total_tasks || targetMessage.total_tasks,
               conversation_id: conversation_id,
               has_ai_dialogues: false,  // Explicitly mark no AI dialogues
-              isHistorical: false  // 确保重试后的消息不是历史消息
+              isHistorical: false  
             };
             return newChats;
           });
@@ -2515,7 +2514,6 @@ eventSource.onmessage = async (event) => {  // 添加 async
               </div>
             )}
             
-            {/* Edit area - 同样检查 isHistorical */}
             {!chat.isHistorical && editingTaskIndex === chat.task_index && (
               <div className="task-edit-container">
                 <textarea

@@ -12,7 +12,6 @@ const App = () => {
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
-    // 检查用户是否已登录
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const apiKeyStatus = localStorage.getItem('hasApiKey');
@@ -23,7 +22,6 @@ const App = () => {
     }
   }, []);
 
-  // 私有路由组件
   const PrivateRoute = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -32,7 +30,6 @@ const App = () => {
     return children;
   };
 
-  // API Key 保护路由
   const ApiKeyProtectedRoute = ({ children }) => {
     const token = localStorage.getItem('token');
     const apiKeyStatus = localStorage.getItem('hasApiKey');
@@ -50,7 +47,6 @@ const App = () => {
 
   const handleApiKeySuccess = () => {
     setHasApiKey(true);
-    // 导航到聊天页面在组件内部处理
   };
 
   return (
@@ -60,7 +56,6 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* API Key 输入页面 - 需要登录但不需要 API Key */}
         <Route 
           path="/api-key" 
           element={
@@ -70,7 +65,6 @@ const App = () => {
           } 
         />
         
-        {/* 聊天页面 - 需要登录和 API Key */}
         <Route 
           path="/chat" 
           element={
